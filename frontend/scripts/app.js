@@ -609,10 +609,38 @@ async function renderMyEvents() {
     const pointsEl = document.getElementById('total-points');
     if (pointsEl) {
       pointsEl.textContent = totalPoints;
+
+      // Level definitions
+      const LEVELS = [
+        { min: 0,    max: 149,  label: 'Level 1 · Newcomer',  icon: '🌱' },
+        { min: 150,  max: 499,  label: 'Level 2 · Explorer',  icon: '🏅' },
+        { min: 500,  max: 999,  label: 'Level 3 · Regular',   icon: '🔥' },
+        { min: 1000, max: 1999, label: 'Level 4 · Champion',  icon: '🏆' },
+        { min: 2000, max: Infinity, label: 'Level 5 · Legend', icon: '⭐' },
+      ];
+      const currentLevel = LEVELS.slice().reverse().find(l => totalPoints >= l.min) || LEVELS[0];
+      const nextLevel    = LEVELS[LEVELS.indexOf(currentLevel) + 1];
+
+      // Update badge text
+      const levelBadge = document.querySelector('.level-badge');
+      if (levelBadge) levelBadge.textContent = `${currentLevel.icon} ${currentLevel.label}`;
+
+      // Update progress bar
       const progressFill = document.querySelector('.points-progress-fill');
-      if (progressFill) {
-        const nextMilestone = Math.ceil(totalPoints / 500) * 500;
-        progressFill.style.width = `${(totalPoints % 500) / 500 * 100}%`;
+      if (progressFill && nextLevel) {
+        const range = nextLevel.min - currentLevel.min;
+        const progress = totalPoints - currentLevel.min;
+        progressFill.style.width = `${Math.min((progress / range) * 100, 100)}%`;
+      } else if (progressFill) {
+        progressFill.style.width = '100%'; // max level
+      }
+
+      // Update next level text
+      const nextLevelEl = document.querySelector('.points-widget p');
+      if (nextLevelEl) {
+        nextLevelEl.textContent = nextLevel
+          ? `Next level at ${nextLevel.min} pts`
+          : '🎉 Maximum level reached!';
       }
     }
 
