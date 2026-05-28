@@ -106,8 +106,9 @@
         let isAlreadyRegistered = false;
         if (window.INSAT.Auth.isLoggedIn()) {
           try {
-            const userEvents = await window.INSAT.getUserEvents();
-            isAlreadyRegistered = userEvents?.some(e => e.id === eventId);
+            const userEventsRes = await window.INSAT.getUserEvents();
+            const userEvents = userEventsRes?.data || userEventsRes || [];
+            isAlreadyRegistered = userEvents.some(e => String(e.id) === String(eventId));
           } catch (err) {
             console.warn('Could not check registration status', err);
           }
